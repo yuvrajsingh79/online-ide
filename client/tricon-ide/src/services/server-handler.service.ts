@@ -22,11 +22,17 @@ export class ServerHandlerService {
       .pipe(map((body) => body.langs));
   }
 
-  public postCodeToRun(code: string, language: { id: string, version: string, index: string }) {
+  public postCodeToRun(code: string, language: { id: string, version: string, index: string, stdin: string }) {
     console.log('postCodeToRun()');
     const queryUrl = this.baseUrl + 'api/exec/code/';
     // const requestBody = { program: code, lang: language.id, version: language.version };
-    const requestBody = { script: code, language: language.id, versionIndex: language.index };
-    return this.http.post(queryUrl, requestBody);
+    if(language.stdin != ""){
+      const requestBody = { script: code, language: language.id, versionIndex: language.index, stdin: language.stdin };  
+      return this.http.post(queryUrl, requestBody);
+    }
+    else {
+      const requestBody = { script: code, language: language.id, versionIndex: language.index };
+      return this.http.post(queryUrl, requestBody);
+    }
   }
 }

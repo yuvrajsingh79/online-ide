@@ -7,6 +7,8 @@ div.label-box {
 
 .form-control { border-radius: 0 !important; }
 
+.form-group { width: 50% }
+
 .form-control:disabled { background-color: #ffffff !important; }
 
 .output {

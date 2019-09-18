@@ -43,6 +43,8 @@ const DEFAULT_LANG_MODE = 'nodejs';
   // array of the supported themes names.
   public supportedThemes = DEFAULT_SUPPORTED_EDITOR_THEMES;
   @ViewChild('languagesSelect', { static: true }) languagesSelect: ElementRef;
+  @ViewChild('inputArea', { static: true }) inputArea: ElementRef;
+  @ViewChild('myCheck', { static: true }) myCheck: ElementRef;
   // array of the supported languages, to simplify the usage in the component code
   private languagesArray: Language[] = [];
   // observable of the supported languages.
@@ -91,6 +93,8 @@ const DEFAULT_LANG_MODE = 'nodejs';
     this.setEditorTheme(this.initOptions.theme || DEFAULT_THEME);
     this.setContent(this.initOptions.content || DEFAULT_INIT_CONTENT);
     this.selIndex = 1;
+    this.inputArea.nativeElement.style.display = "none";
+    this.codeEditor.container.style.height = "500px";
   }
 
   // #region - private
@@ -229,17 +233,31 @@ const DEFAULT_LANG_MODE = 'nodejs';
   public onRunContent() {
     const code = this.getContent();
     console.log(this.getCurrentConfig());
-    if ( code && code.length > 0) {
+    if (code && code.length > 0) {
       // const languagesSelectElement = this.languagesSelect.nativeElement as HTMLSelectElement;
       const inedx = this.selIndex;
       const language = this.languagesArray[inedx];
       console.log(language);
-      this.handler.postCodeToRun(code, {
-        id: language.lang, version: language.version, index: language.index
-      }).subscribe((data: any) => {
-        this.output$ = data.output;
-        console.log("data   ", data);
-      })
+      // var checkSts: string = "";
+      const checkSts = this.myCheck.nativeElement.value;
+      const stdIn = this.inputArea.nativeElement.firstElementChild.value;
+      if(checkSts == "unchecked" && stdIn != null){
+        this.handler.postCodeToRun(code, {
+          id: language.lang, version: language.version, index: language.index, stdin: stdIn
+        }).subscribe((data: any) => {
+          this.output$ = data.output;
+          console.log("data   ", data);
+        })
+      }
+      else{
+        this.handler.postCodeToRun(code, {
+          id: language.lang, version: language.version, index: language.index, stdin: ""
+        }).subscribe((data: any) => {
+          this.output$ = data.output;
+          console.log("data   ", data);
+        })
+      }
+      
       // this.output$ = this.handler.postCodeToRun(code, {
       //   id: language.lang, version: language.version, index: language.index
       // });
@@ -271,6 +289,17 @@ const DEFAULT_LANG_MODE = 'nodejs';
     // this.languagesSelect = language.lang;
     const langMode = language.lang;
     this.setLanguageMode(langMode);
+  }
+
+  public onCustomSelect(event: any) {
+    if (this.myCheck.nativeElement.value == "checked") {
+      this.inputArea.nativeElement.style.display = "block";
+      this.myCheck.nativeElement.value = "unchecked"
+    }
+    else {
+      this.inputArea.nativeElement.style.display = "none";
+      this.myCheck.nativeElement.value = "checked"
+    }
   }
   // #endregion
 }
