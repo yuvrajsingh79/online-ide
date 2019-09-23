@@ -22,6 +22,12 @@ export class ServerHandlerService {
       .pipe(map((body) => body.langs));
   }
 
+  public getAllPubCourses(){
+    console.log('Fetching all published courses...');
+    const queryUrl = this.baseUrl + 'api/test/';
+    return this.http.get(queryUrl);
+  }
+
   public postCodeToRun(code: string, language: { id: string, version: string, index: string, stdin: string }) {
     console.log('postCodeToRun()');
     const queryUrl = this.baseUrl + 'api/exec/code/';

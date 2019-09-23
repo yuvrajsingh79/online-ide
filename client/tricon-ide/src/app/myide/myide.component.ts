@@ -27,6 +27,7 @@ import {
 const DEFAULT_INIT_CONTENT = '';
 const DEFAULT_THEME = 'github';
 const DEFAULT_LANG_MODE = 'nodejs';
+const DEFAULT_COURSE = '--Select--';
 
 @Component({
   selector: 'app-myide',
@@ -42,13 +43,16 @@ const DEFAULT_LANG_MODE = 'nodejs';
   public initEditorOptions = DEFAULT_INIT_EDITOR_OPTIONS;
   // array of the supported themes names.
   public supportedThemes = DEFAULT_SUPPORTED_EDITOR_THEMES;
-  @ViewChild('languagesSelect', { static: true }) languagesSelect: ElementRef;
-  @ViewChild('inputArea', { static: true }) inputArea: ElementRef;
-  @ViewChild('myCheck', { static: true }) myCheck: ElementRef;
+  @ViewChild('languagesSelect') languagesSelect: ElementRef;
+  @ViewChild('coursesSelect') coursesSelect: ElementRef;
+  @ViewChild('inputArea') inputArea: ElementRef;
+  @ViewChild('myCheck') myCheck: ElementRef;
   // array of the supported languages, to simplify the usage in the component code
   private languagesArray: Language[] = [];
   // observable of the supported languages.
   public languagesArray$: Observable<[Language[]]>;
+  //observable of the published courses
+  public coursesArray$: Observable<any>;
   // observable of the run request output.
   // public output$: Observable<string>;
   public output$: any = "";
@@ -57,18 +61,17 @@ const DEFAULT_LANG_MODE = 'nodejs';
   // reference to beautify extension.
   private editorBeautify;
   // the div element on which ace editor will ride on.
-  @ViewChild('codeEditor', { static: true }) codeEditorElmRef: ElementRef;
+  @ViewChild('codeEditor') codeEditorElmRef: ElementRef;
   // injected init options for this editor component.
-  @Input() initOptions: { languageMode?: string; theme?: string; content?: string; } = {};
+  @Input() initOptions: { languageMode?: string; theme?: string; content?: string; courseMode?: string } = {};
   // currently used mode & theme editor config.
-  private currentConfig: { langMode?: string, editorTheme?: string } = {};
+  private currentConfig: { langMode?: string, editorTheme?: string, corseMode?: string } = {};
   //current index
   public selIndex: number;
   // #endregion
 
   // constructor() { }
   constructor(private handler: ServerHandlerService, private http: HttpService) { }
-  // constructor(private http: HttpService) { }
 
   ngOnInit() {
     ace.require('ace/ext/language_tools'); // require extention module for autocompletion
@@ -85,13 +88,13 @@ const DEFAULT_LANG_MODE = 'nodejs';
       console.log(this.languagesArray);
       console.log(data)
     });
-    // console.log(this.languagesArray$);
-    // this.languagesArray = this.pipeSuppurtedLanguages;
     this.activatedTheme = this.initEditorOptions.theme;
+    this.coursesArray$ = this.pipePublishedCourses();
 
     this.setLanguageMode(this.initOptions.languageMode || DEFAULT_LANG_MODE);
     this.setEditorTheme(this.initOptions.theme || DEFAULT_THEME);
     this.setContent(this.initOptions.content || DEFAULT_INIT_CONTENT);
+    this.setCourseMode(this.initOptions.courseMode || DEFAULT_COURSE);
     this.selIndex = 1;
     this.inputArea.nativeElement.style.display = "none";
     this.codeEditor.container.style.height = "500px";
@@ -99,34 +102,21 @@ const DEFAULT_LANG_MODE = 'nodejs';
 
   // #region - private
   private pipeSuppurtedLanguages() {
-    // console.log(this.handler.getAllSuppurtedLangs());
     this.handler.getAllSuppurtedLangs().pipe(
       map((languages: LanguageTable) => {
         console.log(languages);
       })
     )
     return this.handler.getAllSuppurtedLangs();
-    // .pipe(
-    //   // reduce the incoming table to languages array.
-    //   map((languages: LanguageTable) => {
-    //     console.log(languages);
-    //     return languages.reduce<Language[]>((langsArray, entry) => {
-    //       return langsArray.concat(entry[1]);
-    //     }, []);
-    //   }),
-    //   // store the array in a member.
-    //   tap((languages: Language[]) => this.languagesArray = languages),
-    //   // console log any error and returning an empty array.
-    //   catchError((err) => {
-    //     console.log(err);
-    //     this.cantReachServer = true;
-    //     this.languagesArray = [];
-    //     return of(this.languagesArray);
-    //   })
-    // );
   }
 
-
+  private pipePublishedCourses() {
+    try {
+      return this.handler.getAllPubCourses();
+    } catch (error) {
+      console.log(error);
+    }
+  }
 
   // #region - private
   private createCodeEditor(element: Element, options: any): ace.Ace.Editor {
@@ -161,8 +151,16 @@ const DEFAULT_LANG_MODE = 'nodejs';
     } catch (error) {
       console.log(error);
     }
-
   }
+
+  public setCourseMode(courseMode: string): void {
+    try {
+      this.currentConfig.corseMode = courseMode;
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
   public setEditorTheme(theme: string): void {
     try {
       if (themeModuleMap.has(theme)) {
@@ -223,8 +221,6 @@ const DEFAULT_LANG_MODE = 'nodejs';
   }
   // #endregion
 
-  //--------------------------------------------------------------------//
-
   // #region - public
   public onClearContent() { this.setContent(''); }
 
@@ -234,14 +230,12 @@ const DEFAULT_LANG_MODE = 'nodejs';
     const code = this.getContent();
     console.log(this.getCurrentConfig());
     if (code && code.length > 0) {
-      // const languagesSelectElement = this.languagesSelect.nativeElement as HTMLSelectElement;
       const inedx = this.selIndex;
       const language = this.languagesArray[inedx];
       console.log(language);
-      // var checkSts: string = "";
       const checkSts = this.myCheck.nativeElement.value;
       const stdIn = this.inputArea.nativeElement.firstElementChild.value;
-      if(checkSts == "unchecked" && stdIn != null){
+      if (checkSts == "unchecked" && stdIn != null) {
         this.handler.postCodeToRun(code, {
           id: language.lang, version: language.version, index: language.index, stdin: stdIn
         }).subscribe((data: any) => {
@@ -249,7 +243,7 @@ const DEFAULT_LANG_MODE = 'nodejs';
           console.log("data   ", data);
         })
       }
-      else{
+      else {
         this.handler.postCodeToRun(code, {
           id: language.lang, version: language.version, index: language.index, stdin: ""
         }).subscribe((data: any) => {
@@ -257,22 +251,6 @@ const DEFAULT_LANG_MODE = 'nodejs';
           console.log("data   ", data);
         })
       }
-      
-      // this.output$ = this.handler.postCodeToRun(code, {
-      //   id: language.lang, version: language.version, index: language.index
-      // });
-      // .pipe(
-      //   // returning the output content.
-      //   map((response: RunResult) => response.output),
-      //   // console log any error and returning an error message.
-      //   catchError((err) => {
-      //     console.log(err);
-      //     return of(DEFAULT_RUN_ERROR_MESSAGE);
-      //   })
-      // )
-      // ;
-      // console.log(oo);
-      // console.log(this.output$);
     }
   }
 
@@ -286,9 +264,12 @@ const DEFAULT_LANG_MODE = 'nodejs';
     const selectedIndex = event.target.selectedIndex;
     this.selIndex = selectedIndex;
     const language = this.languagesArray[selectedIndex];
-    // this.languagesSelect = language.lang;
     const langMode = language.lang;
     this.setLanguageMode(langMode);
+  }
+
+  public onChangeCourseMode(event: any) {
+    console.log(event);
   }
 
   public onCustomSelect(event: any) {
