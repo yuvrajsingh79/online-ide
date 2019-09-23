@@ -9,6 +9,8 @@ div.label-box {
 
 .form-group { width: 50% }
 
+.form-group-1 { width: 25% }
+
 .form-control:disabled { background-color: #ffffff !important; }
 
 .output {

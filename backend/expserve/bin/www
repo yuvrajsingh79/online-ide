@@ -15,8 +15,17 @@ var http = require('http');
 var port = normalizePort(process.env.PORT || '3001');
 app.set('port', port);
 
+// jdoodle api keys
 process.env.JDOODLE_CLIENT_ID = "1a9ab2175fad51d30c9f0d652fceaf10";
 process.env.JDOODLE_CLIENT_SECRET = "8afc886bb46b4353853639f605239b2cf8470075e506261321fe9ae62dbf7c03";
+
+
+// db details
+process.env.dbhost = '172.16.18.185';
+process.env.dbport = 3306;
+process.env.dbname = 'lms2';
+process.env.dbuser = 'root';
+process.env.dbpswd = 'root123';
 
 /**
  * Create HTTP server.

@@ -8,6 +8,7 @@ var cors = require('cors');
 var indexRouter = require('./routes/index');
 const langRouter = require('./routes/lang');
 const compiler = require('./routes/compiler')
+const test = require('./routes/new-code')
 var app = express();
 
 // view engine setup
@@ -24,6 +25,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use('/', indexRouter);
 app.use('/api/lang',langRouter);
 app.use('/api/exec', compiler);
+app.use('/api/test', test);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {

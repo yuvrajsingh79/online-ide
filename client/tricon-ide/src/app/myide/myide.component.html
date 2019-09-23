@@ -2,12 +2,64 @@
   <!-- header -->
   <nav class="navbar navbar-light bg-light ">
     <div class="container text-center p-2 ">
-      <span class="mx-auto text-bold">Tricon IDE</span>
+      <span class="mx-auto text-bold">Tricon Code Assesment</span>
     </div>
   </nav>
 </div>
 
+<!-- Question area -->
+<div class="container h-100 mt-4">
+  <div class="row mb-4">
+    <div class="col">
+      <div class="questions inline">
+        <label class="questions-inline">Question :
+        </label>
+      </div>
+      <div class="form-group-question" #questionsArea>
+        <textarea class="form-control" rows="5" id="questions" style="display:block; height: 350px"></textarea>
+      </div>
+      <div class="input-group input-group-sm" style="padding-top: 10px">
+        <div class="input-group-prepend">
+          <label class="input-group-text" for="courses-select">Course</label>
+        </div>
+        <select *ngIf="(coursesArray$ | async) as courses; else loadingCourses;" class="courses-select"
+          id="courses-select" #coursesSelect (change)="onChangeCourseMode($event)">
+          <option *ngFor="let course of courses; let i = index" value="{{i}}"
+            [selected]="initEditorOptions.courseMode===course.courseName">
+            {{course.courseName}}
+          </option>
+        </select>
+      </div>
+      <div class="row mb-4" style="padding-top: 10px">
+        <div class="col">
+          <div class="custom-checkbox inline">
+            <label class="checkbox-inline">
+              <input type="checkbox" id="customCheck" value="checked" (click)="onInputSelect()" #myCheck> Sample Input
+            </label>
+          </div>
+          <div class="form-group-1" #stdInputArea>
+            <textarea class="form-control" rows="5" id="sampleStdIn" style="display:block"></textarea>
+          </div>
 
+          <div class="form-group-1" #stdOutputArea>
+            <label>Sample Output</label>
+            <textarea class="form-control" rows="5" id="sampleOutput" style="display:block"></textarea>
+          </div>
+
+          
+
+        </div>
+      </div>
+      <br>
+      <div class="col-lg-2 ">
+        <button type="button" class="btn btn-primary btn-sm btn-block" (click)="beautifyContent()">
+          Save problem
+        </button>
+      </div>
+    </div>
+
+  </div>
+</div>
 
 <div class="container h-100 mt-4">
 
@@ -66,7 +118,7 @@
   <div class="row mb-4 justify-content-center mx-4">
     <div class="col-4 col-lg-2 col-md-3 col-sm-4 w-75">
       <button type="button" class="btn btn-dark btn-sm btn-block px-4 mx-2" (click)="onRunContent()">
-        Run
+        Compile and Test
       </button>
       <!-- <button type="button" class="btn btn-dark btn-sm btn-block px-4 mx-2" [ngClass]="{'cant-click' : cantReachServer}"
           [disabled]="cantReachServer" (click)="onRunContent()">
