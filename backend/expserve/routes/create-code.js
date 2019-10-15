@@ -44,7 +44,6 @@ router.post('/', function (req, res, next) {
             console.log("Connected!");
             var sql = "INSERT INTO code_assesment (courseId, question, isStdIn, totalTestCases, sampleStdIn, sampleStdOut, testCaseStdIn, testCaseStdOut, createdBy, createdOn, totalSubmissions, correctSubmissions, allowedAttempts, langsAllowed, score, isReviewd, reviewedBy, reviewedOn, duration, startDateTime, endDateTime, totalRegCoders, registeredCoders) VALUES (" + reqBody.courseId + ", '" + reqBody.question + "', " + reqBody.isStdIn + ", " + reqBody.totalTestCases + ", '" + reqBody.sampleStdIn + "', '" + reqBody.sampleStdOut + "', '" + reqBody.testCaseStdIn + "', '" + reqBody.testCaseStdOut + "', '" + reqBody.createdBy + "', '" + reqBody.createdOn + "', " + reqBody.totalSubmissions + ", " + reqBody.correctSubmissions + ", " + reqBody.allowedAttempts + ", '" + reqBody.langsAllowed + "', " + reqBody.score + ", " + reqBody.isReviewd + ", '" + reqBody.reviewedBy + "', '" + reqBody.reviewedOn + "', " + reqBody.duration + ", '" + reqBody.startDateTime + "', '" + reqBody.endDateTime + "', " + reqBody.totalRegCoders + ", '" + reqBody.registeredCoders + "')";
             console.log(sql);
-            //   var sql = "select * from course";
             con.query(sql, function (err, result) {
                 if (err) throw err;
                 console.log("db connected.");
